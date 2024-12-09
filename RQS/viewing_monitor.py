@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from tkinter import Tk, Canvas, PhotoImage
 from backend import QueueSystem  # Import the QueueSystem class
-
+import winsound
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\Enoch Gabriel Astor\Desktop\RQS\assets\viewing_MonitorAssets")
 
@@ -76,8 +76,8 @@ def update_viewing_monitor_display():
     """Update the display with the current queue information and overview."""
     users = queue_system.get_all_users()  # Fetch all users from the QueueSystem
 
-    ro_users = [(user[5], user[4]) for user in users if user[5] == "RO"]  # (queue_type, queue_number)
-    po_users = [(user[5], user[4]) for user in users if user[5] == "PO"]  # (queue_type, queue_number)
+    ro_users = [(user[5], user[4], user[2]) for user in users if user[5] == "RO"]  # (queue_type, queue_number, student_id)
+    po_users = [(user[5], user[4], user[2]) for user in users if user[5] == "PO"]  # (queue_type, queue_number, student_id)
 
     # Update window text for RO users
     window_1_text = ro_users[0][1] if len(ro_users) > 0 else " "  # Queue number for first RO
@@ -88,6 +88,71 @@ def update_viewing_monitor_display():
     canvas.itemconfig(window_2, text=f"RO - {window_2_text}" if window_2_text != " " else " ")
     canvas.itemconfig(window_3, text=f"PO - {window_3_text}" if window_3_text != " " else " ")
 
+    # Automatically mark users in the window as "Serving" if they are currently "Waiting"
+
+    # For the first RO user
+    student_id_1 = None  # Initialize the variable
+    if window_1_text != " " and len(ro_users) > 0:
+        student_id_1 = ro_users[0][2]  # Get student ID for the first RO user
+
+    if student_id_1 is not None:  # Check if student_id_1 has been assigned
+        print(f"Checking status for first RO user: Student ID = {student_id_1}")  # Debugging line
+        try:
+            current_status_1 = next(user[6] for user in users if user[2] == student_id_1)  # Corrected index
+            print(f"Current status for Student ID {student_id_1}: {current_status_1}")  # Debugging line
+            if current_status_1 == 'Waiting':
+                print(f"Updating status for Student ID {student_id_1} to 'Serving'")  # Debugging line
+                queue_system.update_user_status(student_id_1, 'Serving')  # Update status to 'Serving'
+                winsound.PlaySound("C:/Users/Enoch Gabriel Astor/Desktop/RQS/assets/pingping.wav", winsound.SND_FILENAME)
+            else:
+                print(f"Student ID {student_id_1} is not 'Waiting', current status: {current_status_1}")  # Debugging line
+        except StopIteration:
+            print(f"Student ID {student_id_1} not found in users list.")
+    else:
+        print("No valid first RO user to check.")  # Handle case where there is no user
+
+    # For the second RO user
+    student_id_2 = None  # Initialize the variable
+    if window_2_text != " " and len(ro_users) > 1:
+        student_id_2 = ro_users[1][2]  # Get student ID for the second RO user
+
+    if student_id_2 is not None:  # Check if student_id_2 has been assigned
+        print(f"Checking status for second RO user: Student ID = {student_id_2}")  # Debugging line
+        try:
+            current_status_2 = next(user[6] for user in users if user[2] == student_id_2)  # Corrected index
+            print(f"Current status for Student ID {student_id_2}: {current_status_2}")  # Debugging line
+            if current_status_2 == 'Waiting':
+                print(f"Updating status for Student ID {student_id_2} to 'Serving'")  # Debugging line
+                queue_system.update_user_status(student_id_2, 'Serving')  # Update status to 'Serving'
+                winsound.PlaySound("C:/Users/Enoch Gabriel Astor/Desktop/RQS/assets/pingping.wav", winsound.SND_FILENAME)
+            else:
+                print(f"Student ID {student_id_2} is not 'Waiting', current status: {current_status_2}")  # Debugging line
+        except StopIteration:
+            print(f"Student ID {student_id_2} not found in users list.")
+    else:
+        print("No valid second RO user to check.")  # Handle case where there is no user
+
+    # For the first PO user
+    student_id_3 = None  # Initialize the variable
+    if window_3_text != " " and len(po_users) > 0:
+        student_id_3 = po_users[0][2]  # Get student ID for the first PO user
+
+    if student_id_3 is not None:  # Check if student_id_3 has been assigned
+        print(f"Checking status for first PO user: Student ID = {student_id_3}")  # Debugging line
+        try:
+            current_status_3 = next(user[6] for user in users if user[2] == student_id_3)  # Corrected index
+            print(f"Current status for Student ID {student_id_3}: {current_status_3}")  # Debugging line
+            if current_status_3 == 'Waiting':
+                print(f"Updating status for Student ID {student_id_3} to 'Serving'")  # Debugging line
+                queue_system.update_user_status(student_id_3, 'Serving')  # Update status to 'Serving'
+                winsound.PlaySound("C:/Users/Enoch Gabriel Astor/Desktop/RQS/assets/pingping.wav", winsound.SND_FILENAME)
+            else:
+                print(f"Student ID {student_id_3} is not 'Waiting', current status: {current_status_3}")  # Debugging line
+        except StopIteration:
+            print(f"Student ID {student_id_3} not found in users list.")
+    else:
+        print("No valid first PO user to check.")  # Handle case where there is no user
+
     # Prepare overview text
     overview_1_text = ro_users[2][1] if len(ro_users) > 2 else ""  # Next RO user after window 1 and 2
     overview_2_text = ro_users[3][1] if len(ro_users) > 3 else ""  # Next RO user after overview 1
@@ -96,11 +161,10 @@ def update_viewing_monitor_display():
     # Update the overview windows
     canvas.itemconfig(overviewwindow_1, text=f"RO - {overview_1_text}" if overview_1_text else " ")
     canvas.itemconfig(overviewwindow_2, text=f"RO - {overview_2_text}" if overview_2_text else " ")
-    canvas.itemconfig(overviewwindow_3, text =f"PO - {overview_3_text}" if overview_3_text else " ")
+    canvas.itemconfig(overviewwindow_3, text=f"PO - {overview_3_text}" if overview_3_text else " ")
 
-    # Schedule the next update in 5 seconds
-    window.after(5000, update_viewing_monitor_display)
-
+    window.after(10000, update_viewing_monitor_display)  # Schedule the next update
+    
 def update_datetime():
     """Update the date and time display."""
     current = datetime.now()
@@ -126,7 +190,6 @@ def update_datetime():
     # Schedule the next update
     window.after(1000, update_datetime)
 
-# Initial updates
 update_viewing_monitor_display()
 update_datetime()
 
