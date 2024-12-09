@@ -1,6 +1,6 @@
 import os
-import re  # Import regular expressions for validation
-import heapq  # Import heapq for priority queue functionality
+import re  
+import heapq  
 import time
 from database import Database
 
@@ -78,15 +78,21 @@ class QueueSystem:
         print("Closing database connection...") 
         self.db.close()
 
-    @staticmethod
     def validate_user_input(name, student_id, concern):
         """Validate user input for name, student ID, and concern."""
-        if not student_id.isdigit():
-            return False, "Student ID must be numbers only."
+    
+    # Check if student_id starts with '02000' and is 11 digits long
+        if not (student_id.startswith("02000") and len(student_id) == 11 and student_id.isdigit()):
+            return False, "Student ID must start with '02000' and be exactly 11 digits long."
+    
+    # Check if name contains only letters and spaces
         if not re.match(r'^[A-Za-z\s]+$', name):
             return False, "Name must contain only letters and spaces."
+    
+    # Check if concern is not empty
         if not concern.strip():
             return False, "Concern cannot be empty."
+    
         return True, "Valid input."
 
     def insert_user(self, name, student_id, concern, queue_number, queue_type):
