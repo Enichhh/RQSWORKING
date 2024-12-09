@@ -15,16 +15,14 @@ def open_input_details_window(queue_type):
     # Get the screen width and height
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
-
     # Set the window dimensions
     window_width = 1280
     window_height = 800
-
     # Calculate x and y coordinates to center the window
     x_position = (screen_width // 2) - (window_width // 2)
     y_position = (screen_height // 2) - (window_height // 2)
 
-# Set the geometry of the window
+    # Set the geometry of the window
     window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
     window.configure(bg="#FFFFFF")
 
@@ -114,15 +112,15 @@ def open_input_details_window(queue_type):
         217.0,
         234.0,
         anchor="nw",
-        text="Student Name:",
+        text="Student Surname:",
         fill="#C0C0C0",
-        font =("Times New Roman", 32 * -1 )
+        font=("Times New Roman", 32 * -1)
     )
     canvas.create_text(
         216.0,
         233.0,
         anchor="nw",
-        text="Student Name:",
+        text="Student Surname:",
         fill="#A0A0A0",
         font=("Times New Roman", 32 * -1)
     )
@@ -130,7 +128,7 @@ def open_input_details_window(queue_type):
         215.0,
         232.0,
         anchor="nw",
-        text="Student Name:",
+        text="Student Surname:",
         fill="#2C3167",
         font=("Times New Roman", 32 * -1)
     )
@@ -166,7 +164,7 @@ def open_input_details_window(queue_type):
         217.0,
         491.0,
         anchor="nw",
-        text="List of Concern: Scholarship, Documents, Other",
+        text="Concern/s",
         fill="#C0C0C0",
         font=("Times New Roman", 32 * -1)
     )
@@ -174,7 +172,7 @@ def open_input_details_window(queue_type):
         216.0,
         490.0,
         anchor="nw",
-        text="List of Concern: Scholarship, Documents, Other",
+        text="Concern/s",
         fill="#A0A0A0",
         font=("Times New Roman", 32 * -1)
     )
@@ -182,12 +180,10 @@ def open_input_details_window(queue_type):
         215.0,
         489.0,
         anchor="nw",
-        text="List of Concern: Scholarship, Documents, Other",
+        text="Concern/s",
         fill="#2C3167",
         font=("Times New Roman", 32 * -1)
     )
-    
-    
 
     # STI College Text 
     canvas.create_text(
@@ -231,13 +227,30 @@ def open_input_details_window(queue_type):
         height=112.0
     )
 
+    button_image_hover_1 = PhotoImage(
+        file=relative_to_assets("button_hover_1.png")
+    )
+
+    def button_1_hover(e):
+        button_1.config(
+            image=button_image_hover_1
+        )
+
+    def button_1_leave(e):
+        button_1.config(
+            image=button_image_1
+        )
+
+    button_1.bind('<Enter>', button_1_hover)
+    button_1.bind('<Leave>', button_1_leave)
+
     window.resizable(False, False)
     window.mainloop()
 
 def submit_user_details(name, student_id, concern, queue_type, window):
     # Create an instance of QueueSystem
     queue_system = QueueSystem()
-    
+
     try:
         # Validate user input
         is_valid, message = queue_system.validate_user_input(name, student_id, concern)
@@ -252,6 +265,4 @@ def submit_user_details(name, student_id, concern, queue_type, window):
         window.destroy()  # This will close the current window
         show_queue_number(user_data['queue_number'])
     finally:
-        queue_system.close()  # Ensure the connection is closed
-
-   
+        queue_system.close()  # Ensure the connection is ⬤
