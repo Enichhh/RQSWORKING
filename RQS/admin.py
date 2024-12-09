@@ -17,32 +17,72 @@ def relative_to_assets(path: str) -> Path:
 window = Tk()
 window.title("Admin")
 
-window.geometry("1280x800")
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+# Set the window dimensions
+window_width = 1280
+window_height = 800
+# Calculate x and y coordinates to center the window
+x_position = (screen_width // 2) - (window_width // 2)
+y_position = (screen_height // 2) - (window_height // 2)
+
+# Set the geometry of the window
+window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 window.configure(bg="#FFFFFF")
 queue_system = QueueSystem()
 
+def show_full_concern(event):
+    """Show the full concern in a new window when the concern is clicked."""
+    # Get the clicked item and its column
+    region = tree.identify_region(event.x, event.y)
+    if region == "cell":
+        # Get the item and column index
+        row_id = tree.identify_row(event.y)
+        column_id = tree.identify_column(event.x)
+
+        # Check if the clicked column is the "Concern" column
+        if column_id == "#4":  
+            concern = tree.item(row_id)['values'][3]  # Get the concern text
+            print(f"Concern retrieved: {concern}")  # Debugging line
+            
+            # Create a new window to display the full concern
+            concern_window = Toplevel(window)
+            concern_window.title("Concern")
+            concern_window.geometry("400x200")  # Set the size of the window
+            
+            # Add a label to display the concern
+            concern_label = Label(concern_window, text=concern, wraplength=380, justify="left")
+            concern_label.pack(pady=20, padx=20)  # Add some padding
+            
+            # Add a button to close the window
+            close_button = Button(concern_window, text="Close", command=concern_window.destroy)
+            close_button.pack(pady=10)
+
 def copy_student_id(event):
-    # Get the selected item
-    selected_item = tree.selection()[0]
-    # Get the student ID value (index 1 because it's the second column)
-    student_id = tree.item(selected_item)['values'][1]
-    # Clear clipboard and copy new value
-    window.clipboard_clear()
-    window.clipboard_append(student_id)
-    
-    # Optional: Show a small popup message
-    popup = Toplevel(window)
-    popup.geometry("200x50")
-    popup.title("")
-    
-    # Position popup near mouse click
-    popup.geometry(f"+{event.x_root}+{event.y_root}")
-    
-    # Add message
-    Label(popup, text=f"Student ID {student_id} copied!").pack(pady=10)
-    
-    # Auto close popup after 1 second
-    popup.after(1000, popup.destroy)
+    """Copy the selected student's ID to the clipboard."""
+    # Get the clicked item and its column
+    region = tree.identify_region(event.x, event.y)
+    if region == "cell":
+        # Get the item
+        selected_item = tree.selection()
+        if selected_item:
+            # Get the student ID value (index 1 because it's the second column)
+            student_id = tree.item(selected_item[0])['values'][1]
+            # Clear clipboard and copy new value
+            window.clipboard_clear()
+            window.clipboard_append(student_id)
+            
+            # Optional: Show a small popup message
+            popup = Toplevel(window)
+            popup.geometry("300x50")
+            popup.title("")
+            
+            # Position popup near mouse click
+            popup.geometry(f"+{event.x_root}+{event.y_root}")
+            
+            # Add message
+            Label(popup, text=f"Student ID {student_id} copied!").pack(pady=10)
+            popup.after(1000, popup.destroy)
 
 def mark_user_completed():
     """Mark the currently selected user as completed."""
@@ -157,20 +197,20 @@ tree = ttk.Treeview(table_frame,
 )
 
 # Column headings
-tree.heading("Name", text="Name")
+tree.heading("Name", text="Surname")
 tree.heading("Student ID", text="Student ID")
 tree.heading("PO/RO", text="PO/RO")
 tree.heading("Concern", text="Concern")
 tree.heading("Queue Number", text="Queue Number")
-tree.heading("Status", text="Status")  # Added heading for "Status"
+tree.heading("Status", text="Status")  
 
 # Column widths
-tree.column("Name", width=200, anchor="center")
+tree.column("Name", width=100, anchor="center")
 tree.column("Student ID", width=150, anchor="center")
 tree.column("PO/RO", width=100, anchor="center")
-tree.column("Concern", width=159, anchor="center")
-tree.column("Queue Number", width=150, anchor="center")
-tree.column("Status", width=150, anchor="center")  # Set width for "Status"
+tree.column("Concern", width=120, anchor="center")
+tree.column("Queue Number", width=200, anchor="center")
+tree.column("Status", width=100, anchor="center") 
 
 tree.pack(expand=True, fill=BOTH)
 
@@ -278,7 +318,7 @@ button_6 = Button(
     image=button_image_6,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: [window.destroy(), print("button_6 clicked")],
+    command=lambda: [window.destroy(), print("Window Destroyed")],
     relief="flat"
 )
 button_6.place(x=950.0, y=658.0, width=330.0, height=142.0)
@@ -424,6 +464,8 @@ canvas.create_text( #main
     font=("Fredoka One", 55 * -1)
 )
 
-tree.bind('<Double-1>', copy_student_id)
+
+tree.bind('<Button-1>', show_full_concern)  # Show full concern on click
+tree.bind('<Double-1>', copy_student_id)  # Copy student ID on double click
 window.resizable(False, False)
 window.mainloop()
